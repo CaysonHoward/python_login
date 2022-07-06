@@ -72,10 +72,7 @@ def get_login_info(name_var, passw_var, con, password_location):
         if name == row[0]:
             if password == row[1]:
                 login_window.destroy()
-
-                menu_window = tk.Tk()
-                menu_window.geometry("100x50")
-                main_menu(menu_window)
+                login_success_page()
 
             else:
                 greetingl4 = tk.Label(
@@ -151,14 +148,33 @@ def login_window_creation(con):
     login_window.mainloop()
 
 
+#This section deals with creating other windows outide of the main login page
+#------------------------------------------------------------------------------------------------------------------
+def login_success_page():
+    login_success_window = tk.Tk()
+    login_success_window.geometry("100x50")
 
-def main_menu(tk_window):
     greetingl1 = tk.Label(
-        tk_window,
+        login_success_window,
         text="Login Successful")
     greetingl1.pack()
-    tk_window.mainloop()
+    button = tk.Button(
+        login_success_window,
+        text="ok",
+        command=lambda: [
+            main_menu_page(),
+            login_success_window.destroy()
+            ],
+        )
+    greetingl1.pack()
+    button.pack()
+    login_success_window.mainloop()
+
+
+def main_menu_page():
+    print('Main Menu')
 #------------------------------------------------------------------------------------------------------------------
+
 
 #program running
 #------------------------------------------------------------------------------------------------------------------
@@ -166,6 +182,7 @@ def main():
     con = db_initialization()
     login_window_creation(con)
 #------------------------------------------------------------------------------------------------------------------
+
 
 #Running of the program
 #------------------------------------------------------------------------------------------------------------------
