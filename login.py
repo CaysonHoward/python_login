@@ -5,6 +5,7 @@ import os.path
 import tkinter as tk
 #importing parts for the UI
 
+#This declares and set up the initial login window
 login_window = tk.Tk()
 login_window.geometry("300x150")
 
@@ -51,6 +52,8 @@ def db_initialization():
 #------------------------------------------------------------------------------------------------------------------
 #This function is used to allow a user to create another user. It checks to see if said user exists and if not, creates the user.
 def create_user(username, passsword, level, con):
+    name=name_var.get()
+    password=passw_var.get()
     for row in con.execute(f'SELECT name FROM USER'):
         if username == row[0]:
             print('Username already exsits. Try again')
@@ -65,14 +68,16 @@ def create_user(username, passsword, level, con):
 #This fuction should also return the access level of the user so the proper UI elements are displayed depending on the users access level
 def get_login_info(name_var, passw_var, con, password_location):
 
+    user_info = []
     name=name_var.get()
     password=passw_var.get()
 
     for row in con.execute('SELECT * FROM USER'):
         if name == row[0]:
             if password == row[1]:
+                user_info = row
                 login_window.destroy()
-                login_success_page()
+                login_success_page(user_info)
 
             else:
                 greetingl4 = tk.Label(
@@ -147,10 +152,9 @@ def login_window_creation(con):
     button.grid(row = 4, column= 1)
     login_window.mainloop()
 
-
 #This section deals with creating other windows outide of the main login page
 #------------------------------------------------------------------------------------------------------------------
-def login_success_page():
+def login_success_page(user_info):
     login_success_window = tk.Tk()
     login_success_window.geometry("100x50")
 
@@ -162,27 +166,68 @@ def login_success_page():
         login_success_window,
         text="ok",
         command=lambda: [
-            main_menu_page(),
-            login_success_window.destroy()
+            login_success_window.destroy(),
+            main_menu_page(user_info)
             ],
         )
     greetingl1.pack()
     button.pack()
     login_success_window.mainloop()
 
+def main_menu_page(user_info):
+    menu_window = tk.Tk()
+    menu_window.geometry("100x50")
 
-def main_menu_page():
-    print('Main Menu')
+    user_greeting = tk.Label(
+        menu_window,
+        text = (f"Welcome {user_info[0]}")
+    )
+
+    button = tk.Button(
+        menu_window,
+        text = "Create New User",
+        command = lambda: [
+            create_user_page()
+        ])
+    
+    
+    user_greeting.pack()
+    button.pack()
+    menu_window.mainloop()
+
+def create_user_page():
+
+    name_var=tk.StringVar()
+    passw_var=tk.StringVar()
+
+    create_user_window = tk.Tk()
+    create_user_window.geometry("100x50")
+
+    username_txt = tk.Label(
+        create_user_window,
+        text="Username: ")
+    password_txt = tk.Label(
+        create_user_window,
+        text="Password: ")
+
+    entry_username = tk.Entry(create_user_window,
+        textvariable = name_var)
+    entry_password = tk.Entry(create_user_window,
+        textvariable = passw_var)
+
+    username_txt.grid(row = 0, column = 0)
+    entry_username.grid(row = 0, column = 1)
+    password_txt.grid(row = 1, column = 0)
+    entry_password.grid(row = 1, column = 1)
+
 #------------------------------------------------------------------------------------------------------------------
 
-
-#program running
+#Program start function
 #------------------------------------------------------------------------------------------------------------------
 def main():
     con = db_initialization()
     login_window_creation(con)
 #------------------------------------------------------------------------------------------------------------------
-
 
 #Running of the program
 #------------------------------------------------------------------------------------------------------------------
