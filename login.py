@@ -51,16 +51,20 @@ def db_initialization():
 #The following fuctions relate to manipulating, adding and deleting data within the database
 #------------------------------------------------------------------------------------------------------------------
 #This function is used to allow a user to create another user. It checks to see if said user exists and if not, creates the user.
-def create_user(username, passsword, level, con):
-    name=name_var.get()
-    password=passw_var.get()
+def create_user(name_var, passw_var, level_var):
+    con = sl.connect('login.db')
+
+    username = name_var.get()
+    password = passw_var.get()
+    level = level_var.get()
+
+
     for row in con.execute(f'SELECT name FROM USER'):
         if username == row[0]:
             print('Username already exsits. Try again')
             return
             
-
-    con.execute(f"INSERT INTO USER VALUES ('{username}','{passsword}', '{level}')")
+    con.execute(f"INSERT INTO USER VALUES ('{username}','{password}', '{level}')")
     con.commit()
 
 
@@ -69,8 +73,8 @@ def create_user(username, passsword, level, con):
 def get_login_info(name_var, passw_var, con, password_location):
 
     user_info = []
-    name=name_var.get()
-    password=passw_var.get()
+    name = name_var.get()
+    password = passw_var.get()
 
     for row in con.execute('SELECT * FROM USER'):
         if name == row[0]:
@@ -192,33 +196,55 @@ def main_menu_page(user_info):
     
     
     user_greeting.pack()
-    button.pack()
+    if user_info[2] == 0:
+        button.pack()
     menu_window.mainloop()
 
 def create_user_page():
-
-    name_var=tk.StringVar()
-    passw_var=tk.StringVar()
-
     create_user_window = tk.Tk()
-    create_user_window.geometry("100x50")
+    create_user_window.geometry("300x150")
 
+    c_name_var=tk.StringVar()
+    c_passw_var=tk.StringVar()
+    c_level_var=tk.StringVar()
+
+    header_txt = tk.Label(
+        create_user_window,
+        text="Welcome to the user creation window")
     username_txt = tk.Label(
         create_user_window,
         text="Username: ")
     password_txt = tk.Label(
         create_user_window,
         text="Password: ")
+    clearance_txt = tk.Label(
+        create_user_window,
+        text="Clearance Level: "
+    )
 
     entry_username = tk.Entry(create_user_window,
-        textvariable = name_var)
+        textvariable = c_name_var)
     entry_password = tk.Entry(create_user_window,
-        textvariable = passw_var)
+        textvariable = c_passw_var)
+    entry_clearance = tk.Entry(create_user_window,
+        textvariable = c_level_var)
 
-    username_txt.grid(row = 0, column = 0)
-    entry_username.grid(row = 0, column = 1)
-    password_txt.grid(row = 1, column = 0)
-    entry_password.grid(row = 1, column = 1)
+    button = tk.Button(
+        create_user_window,
+        text="Create User",
+        command=lambda:[
+            create_user(c_name_var, c_passw_var, c_level_var)
+            ],
+        )
+
+    header_txt.grid(row = 0, column = 1)
+    username_txt.grid(row = 1, column = 0)
+    entry_username.grid(row = 1, column = 1)
+    password_txt.grid(row = 2, column = 0)
+    entry_password.grid(row = 2, column = 1)
+    clearance_txt.grid(row = 3, column = 0)
+    entry_clearance.grid(row = 3, column = 1)
+    button.grid(row=4, column=1)
 
 #------------------------------------------------------------------------------------------------------------------
 
