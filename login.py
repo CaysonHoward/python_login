@@ -15,12 +15,12 @@ login_window.geometry("300x150")
 #It returns the location of the database so other fuctions that use the data have access too it.
 #------------------------------------------------------------------------------------------------------------------
 def db_initialization():
+    global con 
     db_check = os.path.exists('login.db') #Cheaks the local directory for the database. Returns true or false based on the finding
     #If database check finds a database it runs the following if statement
     if db_check == 1:
         print('db in place')
         con = sl.connect('login.db')
-        return con #This returns the databases location
 
     #if database check does not find a database, the following code is run
     if db_check == 0:
@@ -51,13 +51,13 @@ def db_initialization():
 #The following fuctions relate to manipulating, adding and deleting data within the database
 #------------------------------------------------------------------------------------------------------------------
 #This function is used to allow a user to create another user. It checks to see if said user exists and if not, creates the user.
-def create_user(name_var, passw_var, level_var):
-    con = sl.connect('login.db')
+def create_user(cr_name_var, cr_passw_var, cr_level_var):
 
-    username = name_var.get()
-    password = passw_var.get()
-    level = level_var.get()
+    username = cr_name_var.get()
+    password = cr_passw_var.get()
+    level = cr_level_var.get()
 
+    print(username + password + level)
 
     for row in con.execute(f'SELECT name FROM USER'):
         if username == row[0]:
@@ -70,7 +70,7 @@ def create_user(name_var, passw_var, level_var):
 
 #This fuction needs to find if the user is in the database. If the user is not it needs to end or allow the user on more try
 #This fuction should also return the access level of the user so the proper UI elements are displayed depending on the users access level
-def get_login_info(name_var, passw_var, con, password_location):
+def get_login_info(name_var, passw_var, password_location):
 
     user_info = []
     name = name_var.get()
@@ -107,7 +107,7 @@ def get_login_info(name_var, passw_var, con, password_location):
 
     response = get_login_info(username, password, con)"""
 
-def login_window_creation(con):
+def login_window_creation():
     #Variable storage
     name_var=tk.StringVar()
     passw_var=tk.StringVar()
@@ -141,7 +141,7 @@ def login_window_creation(con):
         login_window,
         text="Login",
         command=lambda:[
-            get_login_info(name_var, passw_var, con, entry_password)
+            get_login_info(name_var, passw_var, entry_password)
             ],
         )
 
@@ -191,6 +191,7 @@ def main_menu_page(user_info):
         menu_window,
         text = "Create New User",
         command = lambda: [
+            menu_window.destroy(),
             create_user_page()
         ])
     
@@ -204,36 +205,37 @@ def create_user_page():
     create_user_window = tk.Tk()
     create_user_window.geometry("300x150")
 
-    c_name_var=tk.StringVar()
-    c_passw_var=tk.StringVar()
-    c_level_var=tk.StringVar()
+
+    cr_name_var = tk.StringVar()
+    cr_passw_var = tk.StringVar()
+    cr_level_var = tk.StringVar()
 
     header_txt = tk.Label(
         create_user_window,
-        text="Welcome to the user creation window")
+        text = "Welcome to the user creation window")
     username_txt = tk.Label(
         create_user_window,
-        text="Username: ")
+        text = "Username: ")
     password_txt = tk.Label(
         create_user_window,
-        text="Password: ")
+        text = "Password: ")
     clearance_txt = tk.Label(
         create_user_window,
-        text="Clearance Level: "
+        text = "Clearance Level: " 
     )
 
     entry_username = tk.Entry(create_user_window,
-        textvariable = c_name_var)
+        textvariable = cr_name_var)
     entry_password = tk.Entry(create_user_window,
-        textvariable = c_passw_var)
+        textvariable = cr_passw_var)
     entry_clearance = tk.Entry(create_user_window,
-        textvariable = c_level_var)
+        textvariable = cr_level_var)
 
     button = tk.Button(
         create_user_window,
         text="Create User",
         command=lambda:[
-            create_user(c_name_var, c_passw_var, c_level_var)
+            create_user(cr_name_var, cr_passw_var, cr_level_var)
             ],
         )
 
@@ -245,14 +247,13 @@ def create_user_page():
     clearance_txt.grid(row = 3, column = 0)
     entry_clearance.grid(row = 3, column = 1)
     button.grid(row=4, column=1)
-
 #------------------------------------------------------------------------------------------------------------------
 
 #Program start function
 #------------------------------------------------------------------------------------------------------------------
 def main():
-    con = db_initialization()
-    login_window_creation(con)
+    db_initialization()
+    login_window_creation()
 #------------------------------------------------------------------------------------------------------------------
 
 #Running of the program
