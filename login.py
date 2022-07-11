@@ -1,8 +1,11 @@
+from operator import sub
 import sqlite3 as sl
 #importing SQL tools for manipulating the database
 import os.path
 #importing os tools to check for files
 import tkinter as tk
+
+from pyparsing import col
 #importing parts for the UI
 
 #This declares and set up the initial login window
@@ -43,7 +46,6 @@ def db_initialization():
         #Once the database and tables have been made, the database creates a admin level account for the user
         con.execute(f"INSERT INTO USER VALUES ('admin','admin', {admin_level})")
         con.commit()
-        return con #This returns the databases location so other functions can use it
 #------------------------------------------------------------------------------------------------------------------
 
 
@@ -72,7 +74,8 @@ def create_user(cr_name_var, cr_passw_var, cr_level_var):
 #This fuction should also return the access level of the user so the proper UI elements are displayed depending on the users access level
 def get_login_info(name_var, passw_var, password_location):
 
-    user_info = []
+    global user_info
+    user_info = [ ]
     name = name_var.get()
     password = passw_var.get()
 
@@ -81,7 +84,7 @@ def get_login_info(name_var, passw_var, password_location):
             if password == row[1]:
                 user_info = row
                 login_window.destroy()
-                login_success_page(user_info)
+                login_success_page()
 
             else:
                 greetingl4 = tk.Label(
@@ -158,7 +161,7 @@ def login_window_creation():
 
 #This section deals with creating other windows outide of the main login page
 #------------------------------------------------------------------------------------------------------------------
-def login_success_page(user_info):
+def login_success_page():
     login_success_window = tk.Tk()
     login_success_window.geometry("100x50")
 
@@ -171,14 +174,14 @@ def login_success_page(user_info):
         text="ok",
         command=lambda: [
             login_success_window.destroy(),
-            main_menu_page(user_info)
+            main_menu_page()
             ],
         )
     greetingl1.pack()
     button.pack()
     login_success_window.mainloop()
 
-def main_menu_page(user_info):
+def main_menu_page():
     menu_window = tk.Tk()
     menu_window.geometry("100x50")
 
@@ -212,7 +215,7 @@ def create_user_page():
 
     header_txt = tk.Label(
         create_user_window,
-        text = "Welcome to the user creation window")
+        text = "Welcome to User Creation")
     username_txt = tk.Label(
         create_user_window,
         text = "Username: ")
@@ -231,11 +234,26 @@ def create_user_page():
     entry_clearance = tk.Entry(create_user_window,
         textvariable = cr_level_var)
 
-    button = tk.Button(
+    cru_button = tk.Button(
         create_user_window,
         text="Create User",
         command=lambda:[
             create_user(cr_name_var, cr_passw_var, cr_level_var)
+            ]
+        )   
+    ext_button = tk.Button(
+        create_user_window,
+        text="Exit",
+        command=lambda:[
+            create_user_window.destroy(),
+            main_menu_page()
+            ],
+        )
+    clearenceinfo_button = tk.Button(
+        create_user_window,
+        text="Info",
+        command=lambda:[
+            clearance_info()
             ],
         )
 
@@ -246,7 +264,34 @@ def create_user_page():
     entry_password.grid(row = 2, column = 1)
     clearance_txt.grid(row = 3, column = 0)
     entry_clearance.grid(row = 3, column = 1)
-    button.grid(row=4, column=1)
+    cru_button.grid(row=4, column=1)
+    ext_button.grid(row=4, column=0)
+    clearenceinfo_button.grid(row = 3, column = 3)
+
+
+def clearance_info():
+    clearance_info_window = tk.Tk()
+    clearance_info_window.geometry("450x150")
+
+    header_txt = tk.Label(
+        clearance_info_window,
+        text = "User Clearance info:")
+    sub_header_txt = tk.Label(
+        clearance_info_window,
+        text = "Each user is assinged a clearence, giving them access to specific windows")
+
+    ext_button = tk.Button(
+        clearance_info_window,
+        text="Close",
+        command=lambda:[
+            clearance_info_window.destroy()
+            ],
+        )
+    header_txt.pack()
+    sub_header_txt.pack()
+    ext_button.pack()
+    
+
 #------------------------------------------------------------------------------------------------------------------
 
 #Program start function
