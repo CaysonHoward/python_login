@@ -10,7 +10,7 @@ from pyparsing import col
 
 #This declares and set up the initial login window
 login_window = tk.Tk()
-login_window.geometry("300x150")
+login_window.geometry("250x150")
 
 
 # Database Initialization
@@ -39,7 +39,7 @@ def db_initialization():
                             );
                         """)
             con.execute("""
-                        CREATE TABLE PATIENT (
+                        CREATE TABLE customer (
                             name TEXT NOT NULL PRIMARY KEY
                             );
                         """)
@@ -183,14 +183,14 @@ def login_success_page():
 
 def main_menu_page():
     menu_window = tk.Tk()
-    menu_window.geometry("100x50")
+    menu_window.geometry("200x50")
 
     user_greeting = tk.Label(
         menu_window,
         text = (f"Welcome {user_info[0]}")
     )
 
-    button = tk.Button(
+    crtuser_button = tk.Button(
         menu_window,
         text = "Create New User",
         command = lambda: [
@@ -198,10 +198,22 @@ def main_menu_page():
             create_user_page()
         ])
     
+    crtcustomer_button = tk.Button(
+        menu_window,
+        text = "Create New Customer",
+        command = lambda: [
+            menu_window.destroy(),
+            create_customer_page()
+        ])
     
-    user_greeting.pack()
+    
     if user_info[2] == 0:
-        button.pack()
+        user_greeting.grid(row = 1, column = 2)
+        crtuser_button.grid(row = 2, column = 1)
+        crtcustomer_button.grid(row = 2, column = 2)
+    if user_info[2] == 1:
+        user_greeting.grid(row = 1, column = 1)
+        crtcustomer_button.grid(row = 2, column = 1)
     menu_window.mainloop()
 
 def create_user_page():
@@ -279,6 +291,12 @@ def clearance_info():
     sub_header_txt = tk.Label(
         clearance_info_window,
         text = "Each user is assinged a clearence, giving them access to specific windows")
+    cl_lvl0_txt = tk.Label(
+        clearance_info_window,
+        text = "Level 0: Access to all information, including creating users")
+    cl_lvl1_txt = tk.Label(
+        clearance_info_window,
+        text = "Level 1: Has access to everything except the creation of users")
 
     ext_button = tk.Button(
         clearance_info_window,
@@ -289,6 +307,28 @@ def clearance_info():
         )
     header_txt.pack()
     sub_header_txt.pack()
+    cl_lvl0_txt.pack()
+    cl_lvl1_txt.pack()
+    ext_button.pack()
+
+def create_customer_page():
+    customer_creation_window = tk.Tk()
+    customer_creation_window.geometry("450x150")
+
+    header_txt = tk.Label(
+        customer_creation_window,
+        text = "Welcome to customer Creation")
+
+    ext_button = tk.Button(
+        customer_creation_window,
+        text="Exit",
+        command=lambda:[
+            customer_creation_window.destroy(),
+            main_menu_page()
+            ],
+    )
+
+    header_txt.pack()
     ext_button.pack()
     
 
