@@ -24,6 +24,7 @@ def db_initialization():
     if db_check == 1:
         print('db in place')
         con = sl.connect('login.db')
+        return con
 
     #if database check does not find a database, the following code is run
     if db_check == 0:
@@ -46,6 +47,7 @@ def db_initialization():
         #Once the database and tables have been made, the database creates a admin level account for the user
         con.execute(f"INSERT INTO USER VALUES ('admin','admin', {admin_level})")
         con.commit()
+    return con
 #------------------------------------------------------------------------------------------------------------------
 
 
@@ -183,7 +185,7 @@ def login_success_page():
 
 def main_menu_page():
     menu_window = tk.Tk()
-    menu_window.geometry("200x50")
+    menu_window.geometry("300x50")
 
     user_greeting = tk.Label(
         menu_window,
