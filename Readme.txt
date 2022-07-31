@@ -20,6 +20,11 @@ Database not being found:
         >Python_Projects
             >Spring 2022
                 >Login.Py
+                >login_test.py
                 >login.db
                 >Readme.txt
+
+Program not working:
+    Sometimes visual studio has a problem running files, so sometimes closing and
+    reopening visual studio can fix your problem
 

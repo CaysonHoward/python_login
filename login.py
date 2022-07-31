@@ -3,6 +3,8 @@ import sqlite3 as sl
 import os.path
 #importing os tools to check for files
 import tkinter as tk
+
+from numpy import character, number
 #importing parts for the UI
 
 #This declares and set up the initial login window
@@ -38,8 +40,8 @@ def db_initialization():
                         """)
             con.execute("""
                         CREATE TABLE CUSTOMER (
-                            name TEXT NOT NULL PRIMARY KEY
-                            number INTEGER
+                            number TEXT NOT NULL PRIMARY KEY,
+                            name TEXT
                             );
                         """)
         #Once the database and tables have been made, the database creates a admin level account for the user
@@ -59,7 +61,7 @@ def create_user(cr_name_var, cr_passw_var, cr_level_var, username_loc, password_
     password = cr_passw_var.get()
     level = cr_level_var.get()
 
-    if (level != 0) or (level != 1) or (level != 2):
+    """if (level != 0) or (level != 1) or (level != 2):
         warning = tk.Label(
             screen_name,
             text="Incorrect Clearance Level",
@@ -69,7 +71,7 @@ def create_user(cr_name_var, cr_passw_var, cr_level_var, username_loc, password_
         username_loc.delete(0, tk.END)
         password_loc.delete(0, tk.END)
         clearance_loc.delete(0, tk.END)
-        return
+        return"""
 
 
     for row in con.execute(f'SELECT name FROM USER'):
@@ -97,6 +99,33 @@ def create_user(cr_name_var, cr_passw_var, cr_level_var, username_loc, password_
     clearance_loc.delete(0, tk.END)
     return
 
+def create_customer(name_var, number_var, name_loc, num_loc, screen_name):
+
+
+    cust_name = name_var.get()
+    cust_number = number_var.get()
+
+    for row in con.execute(f'SELECT * FROM CUSTOMER'):
+        if cust_number == row[0]:
+            user_info = tk.Label(
+                screen_name,
+                text="Customer with that number already excists",
+                fg='red')
+            user_info.grid(row= 5, column=1)
+            name_loc.delete(0, tk.END)
+            num_loc.delete(0, tk.END)
+            return
+
+    con.execute(f"INSERT INTO CUSTOMER VALUES ('{cust_number}','{cust_name}')")
+    con.commit()
+
+    user_info = tk.Label(
+        screen_name,
+        text="Customer Created",
+        fg='green')
+    user_info.grid(row= 5, column=1)
+
+
 
 #This fuction needs to find if the user is in the database. If the user is not it needs to end or allow the user on more try
 #This fuction should also return the access level of the user so the proper UI elements are displayed depending on the users access level
@@ -106,6 +135,7 @@ def get_login_info(name_var, passw_var, username_Location, password_location,):
     user_info = [ ]
     name = name_var.get()
     password = passw_var.get()
+    password_catch = 0
 
     for row in con.execute('SELECT * FROM USER'):
         if name == row[0]:
@@ -119,18 +149,20 @@ def get_login_info(name_var, passw_var, username_Location, password_location,):
                     login_window,
                     text="Password Incorrct",
                     fg='red')
+                password_catch = 1
                 
                 greetingl4.grid(row = 5, column= 1)
                 password_location.delete(0, tk.END)
-        else:
-            greetingl4 = tk.Label(
-                login_window,
-                text="Account does not exist",
-                fg='red')
+
+    if password_catch != 1:
+        greetingl4 = tk.Label(
+            login_window,
+            text="Account does not exist",
+            fg='red')
                 
-            greetingl4.grid(row = 5, column= 1)
-            username_Location.delete(0, tk.END)
-            password_location.delete(0, tk.END)
+        greetingl4.grid(row = 5, column= 1)
+        username_Location.delete(0, tk.END)
+        password_location.delete(0, tk.END)
 
 
 #------------------------------------------------------------------------------------------------------------------
@@ -229,6 +261,11 @@ def main_menu_page():
         menu_window,
         text = (f"Welcome {user_info[0]}")
     )
+    no_access = tk.Label(
+        menu_window,
+        text = ("You do not have access. Please contact your system admin"),
+        fg='red'
+    )
 
 #Button creation and calls
 #------------------------------------------------------------------------------------------------------------------
@@ -263,15 +300,18 @@ def main_menu_page():
         crtuser_button.grid(row = 2, column = 1)
         crtcustomer_button.grid(row = 2, column = 2)
         vwcustomer_button.grid(row=2, column=3)
-    if user_info[2] == 1:
+    elif user_info[2] == 1:
         user_greeting.grid(row = 1, column = 1)
         crtcustomer_button.grid(row = 2, column = 1)
         vwcustomer_button.grid(row=2, column=2)
         menu_window.geometry("225x50")
-    if user_info[2] == 2:
+    elif user_info[2] == 2:
         user_greeting.grid(row = 1, column = 1)
         vwcustomer_button.grid(row=2, column=1)
         menu_window.geometry("125x50")
+    else:
+        user_greeting.grid(row = 1, column = 1)
+        no_access.grid(row=2, column=1)
     menu_window.mainloop()
 
 def create_user_page():
@@ -331,6 +371,7 @@ def create_user_page():
         command=lambda:[
             clearance_info()
             ],
+        
         )
 
 #Page Design
@@ -349,7 +390,7 @@ def create_user_page():
 
 def clearance_info():
     clearance_info_window = tk.Tk()
-    clearance_info_window.geometry("450x150")
+    clearance_info_window.geometry("450x180")
 
     header_txt = tk.Label(
         clearance_info_window,
@@ -363,6 +404,12 @@ def clearance_info():
     cl_lvl1_txt = tk.Label(
         clearance_info_window,
         text = "Level 1: Has access to everything except the creation of users")
+    cl_lvl2_txt = tk.Label(
+        clearance_info_window,
+        text = "Level 2: Can only View users")
+    warning = tk.Label(
+        clearance_info_window,
+        text = "Inputing anything other than 0,1 or 2 will cause the user to have access to nothing")
 
     ext_button = tk.Button(
         clearance_info_window,
@@ -375,16 +422,46 @@ def clearance_info():
     sub_header_txt.pack()
     cl_lvl0_txt.pack()
     cl_lvl1_txt.pack()
+    cl_lvl2_txt.pack()
+    warning.pack()
     ext_button.pack()
 
 def create_customer_page():
     customer_creation_window = tk.Tk()
     customer_creation_window.geometry("450x150")
 
+
+    cr_cust_name = tk.StringVar()
+    cr_cust_number = tk.StringVar()
+
+#Text Windows
+#------------------------------------------------------------------------------------------------------------------
     header_txt = tk.Label(
         customer_creation_window,
-        text = "Welcome to the Customer List")
+        text = "Welcome to Customer Creation")
+    name_txt = tk.Label(
+        customer_creation_window,
+        text = "Name: ")
+    number_txt = tk.Label(
+        customer_creation_window,
+        text = "Email or Number: ")
 
+#User input
+#------------------------------------------------------------------------------------------------------------------
+    entry_name = tk.Entry(customer_creation_window,
+        textvariable = cr_cust_name)
+    entry_number = tk.Entry(customer_creation_window,
+        textvariable = cr_cust_number)
+
+#Button creation and calls
+#------------------------------------------------------------------------------------------------------------------
+    cru_button = tk.Button(
+        customer_creation_window,
+        text="Create Customer",
+        command=lambda:[
+            create_customer(cr_cust_name, cr_cust_number, entry_name, entry_number, customer_creation_window)
+            ]
+        )   
     ext_button = tk.Button(
         customer_creation_window,
         text="Exit",
@@ -392,18 +469,26 @@ def create_customer_page():
             customer_creation_window.destroy(),
             main_menu_page()
             ],
-    )
+        )
 
-    header_txt.pack()
-    ext_button.pack()
+#Page Design
+#------------------------------------------------------------------------------------------------------------------
+    header_txt.grid(row = 0, column = 1)
+    name_txt.grid(row = 1, column = 0)
+    entry_name.grid(row = 1, column = 1)
+    number_txt.grid(row = 2, column = 0)
+    entry_number.grid(row = 2, column = 1)
+    cru_button.grid(row=4, column=1)
+    ext_button.grid(row=4, column=0)
+
 
 def view_customer_page():
     customer_view_window = tk.Tk()
-    customer_view_window.geometry("450x150")
+    customer_view_window.geometry("450x450")
 
     header_txt = tk.Label(
         customer_view_window,
-        text = "Welcome to customer Creation")
+        text = "Customer List:")
 
     ext_button = tk.Button(
         customer_view_window,
@@ -415,6 +500,12 @@ def view_customer_page():
     )
 
     header_txt.pack()
+    for row in con.execute('SELECT * FROM CUSTOMER'):
+        greetingl1 = tk.Label(
+            customer_view_window,
+            text=f"Customer Name: {row[1]} Customer Contact: {row[0]}")
+
+        greetingl1.pack()
     ext_button.pack()
     
 
