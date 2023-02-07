@@ -10,7 +10,7 @@ Possible problems & Solutions:
 
 Login not working:
     Make sure that the database has been created. It should be named login.db. If the
-    database does excist you might need to delete it and re-run the program.
+    database does exist you might need to delete it and re-run the program.
 
 Database not being found:
     Ensure that the database is in the same location as your code. A proper file
@@ -24,6 +24,6 @@ Database not being found:
                 >Readme.txt
 
 Program not working:
-    Sometimes visual studio has a problem running files, so sometimes closing and
-    reopening visual studio can fix your problem
+    Sometimes code editors like visual studio code has a problem running files, 
+    so sometimes closing and reopening visual studio can fix your problem
 
